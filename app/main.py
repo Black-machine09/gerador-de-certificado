@@ -70,6 +70,9 @@ def issue_certificate(payload: IssueCertificateRequest):
 
     certificate_id = os.urandom(6).hex()
 
+    whatsapp_sent = False
+    whatsapp_error: str | None = None
+
     try:
         pdf_bytes = generate_certificate_pdf(
             full_name=payload.fullName,
@@ -81,15 +84,17 @@ def issue_certificate(payload: IssueCertificateRequest):
         out_dir.mkdir(parents=True, exist_ok=True)
         (out_dir / f"certificado-{certificate_id}.pdf").write_bytes(pdf_bytes)
 
-        whatsapp_sent = send_certificate_whatsapp(
-            to=str(payload.phone),
-            full_name=payload.fullName,
-            pdf_bytes=pdf_bytes,
-            certificate_id=certificate_id,
-            settings=settings,
-        )
-    except RuntimeError as exc:
-        raise HTTPException(status_code=500, detail=str(exc)) from exc
+        try:
+            whatsapp_sent = send_certificate_whatsapp(
+                to=str(payload.phone),
+                full_name=payload.fullName,
+                pdf_bytes=pdf_bytes,
+                certificate_id=certificate_id,
+                settings=settings,
+            )
+        except RuntimeError as exc:
+            whatsapp_sent = False
+            whatsapp_error = str(exc)
     except Exception as exc:
         raise exc
 
@@ -100,6 +105,7 @@ def issue_certificate(payload: IssueCertificateRequest):
         "ok": True,
         "certificateId": certificate_id,
         "whatsappSent": bool(whatsapp_sent),
+        "whatsappError": whatsapp_error,
         "downloadUrl": f"/api/certificates/{certificate_id}",
         "pdfBase64": pdf_b64,
         "pdfFilename": filename,
