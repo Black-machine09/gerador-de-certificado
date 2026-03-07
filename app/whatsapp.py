@@ -49,6 +49,11 @@ def send_certificate_whatsapp(*, to: str, full_name: str, pdf_bytes: bytes, cert
     req = urllib.request.Request(url, data=body, method="POST")
     req.add_header("Content-Type", "application/x-www-form-urlencoded")
     req.add_header("Accept", "application/json")
+    # Some WAF/Cloudflare setups block the default Python user-agent.
+    req.add_header(
+        "User-Agent",
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+    )
 
     try:
         with urllib.request.urlopen(req, timeout=30) as resp:
