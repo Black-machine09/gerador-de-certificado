@@ -1,6 +1,20 @@
 import type { QuizAnswers } from "./quiz";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
+const DEFAULT_PROD_API_URL = "https://gerador-de-certificado-3jia.onrender.com";
+
+function resolveApiUrl() {
+  const envUrl = import.meta.env.VITE_API_URL;
+  if (envUrl) return envUrl;
+
+  if (typeof window !== "undefined") {
+    const host = window.location.hostname;
+    if (host === "localhost" || host === "127.0.0.1") return "http://localhost:3001";
+  }
+
+  return DEFAULT_PROD_API_URL;
+}
+
+const API_URL = resolveApiUrl();
 
 export async function issueCertificate(payload: { fullName: string; email: string; answers: QuizAnswers }) {
   let res: Response;
