@@ -16,10 +16,9 @@ def _getenv(name: str, default: str | None = None) -> str | None:
 class Settings:
     port: int
     frontend_origin: str
-    gmail_user: str | None
-    gmail_app_password: str | None
-    mail_from_name: str
-    mail_disable: bool
+    ultramsg_instance_id: str | None
+    ultramsg_token: str | None
+    whatsapp_disable: bool
     cert_name_y: float
     cert_name_dy_px: float
     cert_name_start_size: int
@@ -28,17 +27,14 @@ class Settings:
 
 def load_settings() -> Settings:
     port = int(_getenv("PORT", "3001") or "3001")
-    frontend_origin = _getenv("FRONTEND_ORIGIN", "http://localhost:5173") or "http://localhost:5173"
+    frontend_origin = _getenv("FRONTEND_ORIGIN", "*") or "*"
 
-    gmail_user = _getenv("GMAIL_USER")
-    gmail_app_password = _getenv("GMAIL_APP_PASSWORD")
-    mail_from_name = _getenv("MAIL_FROM_NAME", "PADE") or "PADE"
-    mail_disable_env = os.getenv("MAIL_DISABLE")
-    if mail_disable_env is None:
-        mail_disable = not (gmail_user and gmail_app_password)
-    else:
-        mail_disable_raw = (mail_disable_env.strip() or "0").lower()
-        mail_disable = mail_disable_raw in {"1", "true", "yes", "y", "on"}
+    ultramsg_instance_id = _getenv("ULTRAMSG_INSTANCE_ID")
+    ultramsg_token = _getenv("ULTRAMSG_TOKEN")
+    whatsapp_disable_raw = (_getenv("WHATSAPP_DISABLE", "0") or "0").lower()
+    whatsapp_disable = whatsapp_disable_raw in {"1", "true", "yes", "y", "on"}
+    if not whatsapp_disable and not (ultramsg_instance_id and ultramsg_token):
+        whatsapp_disable = True
 
     cert_name_y = float(_getenv("CERT_NAME_Y", "0.555") or "0.555")
     cert_name_dy_px = float(_getenv("CERT_NAME_DY_PX", "0") or "0")
@@ -48,10 +44,9 @@ def load_settings() -> Settings:
     return Settings(
         port=port,
         frontend_origin=frontend_origin,
-        gmail_user=gmail_user,
-        gmail_app_password=gmail_app_password,
-        mail_from_name=mail_from_name,
-        mail_disable=mail_disable,
+        ultramsg_instance_id=ultramsg_instance_id,
+        ultramsg_token=ultramsg_token,
+        whatsapp_disable=whatsapp_disable,
         cert_name_y=cert_name_y,
         cert_name_dy_px=cert_name_dy_px,
         cert_name_start_size=cert_name_start_size,

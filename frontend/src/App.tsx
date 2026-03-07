@@ -8,12 +8,12 @@ export function App() {
   const [step, setStep] = useState<Step>("gate");
   const [answers, setAnswers] = useState<QuizAnswers>(DEFAULT_ANSWERS);
   const [fullName, setFullName] = useState("");
-  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [certificateId, setCertificateId] = useState<string | null>(null);
   const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
-  const [emailSent, setEmailSent] = useState<boolean | null>(null);
+  const [whatsappSent, setWhatsappSent] = useState<boolean | null>(null);
 
   const stepLabel = useMemo(() => {
     if (step === "gate") return "Início";
@@ -53,10 +53,10 @@ export function App() {
     setError(null);
     setBusy(true);
     try {
-      const result = await issueCertificate({ fullName, email, answers });
+      const result = await issueCertificate({ fullName, phone, answers });
       setCertificateId(result.certificateId);
       setDownloadUrl(result.downloadUrl ? `${import.meta.env.VITE_API_URL || "https://gerador-de-certificado-3jia.onrender.com"}${result.downloadUrl}` : null);
-      setEmailSent(typeof result.emailSent === "boolean" ? result.emailSent : null);
+      setWhatsappSent(typeof result.whatsappSent === "boolean" ? result.whatsappSent : null);
       setStep("done");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erro inesperado.");
@@ -69,12 +69,12 @@ export function App() {
     setStep("gate");
     setAnswers(DEFAULT_ANSWERS);
     setFullName("");
-    setEmail("");
+    setPhone("");
     setError(null);
     setBusy(false);
     setCertificateId(null);
     setDownloadUrl(null);
-    setEmailSent(null);
+    setWhatsappSent(null);
   }
 
   return (
@@ -200,8 +200,8 @@ export function App() {
             </div>
 
             <div>
-              <label>Email (Gmail recomendado para testes)</label>
-              <input value={email} onChange={(e) => setEmail(e.target.value)} type="email" />
+              <label>WhatsApp (com indicativo do país)</label>
+              <input value={phone} onChange={(e) => setPhone(e.target.value)} type="tel" placeholder="+244 9xx xxx xxx" />
             </div>
 
             <div className="actions">
@@ -209,7 +209,7 @@ export function App() {
                 Voltar
               </button>
               <button className="primary" type="submit" disabled={busy}>
-                {busy ? "A enviar..." : "Emitir e enviar"}
+                {busy ? "A enviar..." : "Emitir e enviar no WhatsApp"}
               </button>
             </div>
 
@@ -222,9 +222,9 @@ export function App() {
             <div>
               <h2 style={{ margin: 0, fontSize: 18 }}>Certificado enviado</h2>
               <p style={{ margin: "8px 0 0", color: "var(--muted)" }}>
-                {emailSent === false
-                  ? "O envio por email está desativado no servidor. Faça o download abaixo."
-                  : "Verifique a sua caixa de entrada (e spam)."}
+                {whatsappSent === false
+                  ? "O envio por WhatsApp está desativado no servidor. Faça o download abaixo."
+                  : "Verifique o WhatsApp (e pedidos/mensagens desconhecidas)."}
                 {" "}Código: <strong>{certificateId}</strong>
               </p>
               {downloadUrl && (

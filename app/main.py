@@ -9,10 +9,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 
 from .certificate import generate_certificate_pdf
-from .mailer import send_certificate_email
 from .quiz import validate_quiz_answers
 from .schemas import IssueCertificateRequest
 from .settings import load_settings
+from .whatsapp import send_certificate_whatsapp
 
 
 load_dotenv()
@@ -80,8 +80,8 @@ def issue_certificate(payload: IssueCertificateRequest):
         out_dir.mkdir(parents=True, exist_ok=True)
         (out_dir / f"certificado-{certificate_id}.pdf").write_bytes(pdf_bytes)
 
-        email_sent = send_certificate_email(
-            to=str(payload.email),
+        whatsapp_sent = send_certificate_whatsapp(
+            to=str(payload.phone),
             full_name=payload.fullName,
             pdf_bytes=pdf_bytes,
             certificate_id=certificate_id,
@@ -95,6 +95,6 @@ def issue_certificate(payload: IssueCertificateRequest):
     return {
         "ok": True,
         "certificateId": certificate_id,
-        "emailSent": bool(email_sent),
+        "whatsappSent": bool(whatsapp_sent),
         "downloadUrl": f"/api/certificates/{certificate_id}",
     }

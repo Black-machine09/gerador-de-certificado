@@ -11,7 +11,7 @@ function resolveApiUrl() {
 
 const API_URL = resolveApiUrl();
 
-export async function issueCertificate(payload: { fullName: string; email: string; answers: QuizAnswers }) {
+export async function issueCertificate(payload: { fullName: string; phone: string; answers: QuizAnswers }) {
   let res: Response;
   try {
     res = await fetch(`${API_URL}/api/certificates/issue`, {
@@ -33,5 +33,5 @@ export async function issueCertificate(payload: { fullName: string; email: strin
     throw new Error(`${message}${field}`);
   }
 
-  return data as { ok: true; certificateId: string; emailSent?: boolean; downloadUrl?: string };
+  return data as { ok: true; certificateId: string; whatsappSent?: boolean; downloadUrl?: string };
 }

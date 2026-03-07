@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, Field
 
 
 class QuizAnswers(BaseModel):
@@ -12,5 +12,5 @@ class QuizAnswers(BaseModel):
 
 class IssueCertificateRequest(BaseModel):
     fullName: str = Field(min_length=3, max_length=80)
-    email: EmailStr
+    phone: str = Field(min_length=8, max_length=24)
     answers: QuizAnswers
