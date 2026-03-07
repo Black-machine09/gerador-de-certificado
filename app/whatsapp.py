@@ -3,6 +3,7 @@ from __future__ import annotations
 import base64
 import json
 import urllib.parse
+import urllib.error
 import urllib.request
 
 from .settings import Settings
@@ -71,4 +72,3 @@ def send_certificate_whatsapp(*, to: str, full_name: str, pdf_bytes: bytes, cert
         if data:
             raise RuntimeError(f"Falha ao enviar no WhatsApp. Resposta: {data}")
     return True
-
