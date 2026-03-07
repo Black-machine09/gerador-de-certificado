@@ -22,8 +22,8 @@ def _template_path() -> str | None:
 def _fit_font_size(pdf: FPDF, text: str, max_width: float, start_size: int) -> int:
     size = start_size
     while size > 12:
-        pdf.add_font("GreatVibes", "", "GreatVibe-Regular.ttf")
-        pdf.set_font("GreatVibe",  size=size)
+        # Use built-in fonts to avoid external TTF dependencies.
+        pdf.set_font("Times", "B", size=size)
         width = pdf.get_string_width(text)
         if width <= max_width:
             return size
@@ -80,7 +80,7 @@ def generate_certificate_pdf(*, full_name: str, certificate_id: str, settings: S
         pdf.set_draw_color(31, 56, 115)
         pdf.set_line_width(3)
         pdf.rect(18, 18, page_w - 36, page_h - 36)
-        pdf.set_draw_color(255, 215, 0)
+        pdf.set_draw_color(179, 153, 77)
         pdf.set_line_width(1)
         pdf.rect(30, 30, page_w - 60, page_h - 60)
 
@@ -116,9 +116,9 @@ def generate_certificate_pdf(*, full_name: str, certificate_id: str, settings: S
     # Evitar caracteres fora de latin-1 nos core fonts (ex.: "•")
     meta = f"Emitido em {issued_at} - ID {certificate_id}"
     meta_size = 10
-    pdf.set_font("GreatVibes", size=meta_size)
+    pdf.set_font("Helvetica", size=meta_size)
     meta_width = pdf.get_string_width(meta)
-    pdf.set_text_color(255, 215, 0)
+    pdf.set_text_color(64, 64, 64)
     pdf.text(x=page_w - meta_width - 28, y=page_h - 26, txt=meta)
 
     out = pdf.output(dest="S")
