@@ -33,8 +33,12 @@ def load_settings() -> Settings:
     gmail_user = _getenv("GMAIL_USER")
     gmail_app_password = _getenv("GMAIL_APP_PASSWORD")
     mail_from_name = _getenv("MAIL_FROM_NAME", "PADE") or "PADE"
-    mail_disable_raw = (_getenv("MAIL_DISABLE", "0") or "0").lower()
-    mail_disable = mail_disable_raw in {"1", "true", "yes", "y", "on"}
+    mail_disable_env = os.getenv("MAIL_DISABLE")
+    if mail_disable_env is None:
+        mail_disable = not (gmail_user and gmail_app_password)
+    else:
+        mail_disable_raw = (mail_disable_env.strip() or "0").lower()
+        mail_disable = mail_disable_raw in {"1", "true", "yes", "y", "on"}
 
     cert_name_y = float(_getenv("CERT_NAME_Y", "0.555") or "0.555")
     cert_name_dy_px = float(_getenv("CERT_NAME_DY_PX", "0") or "0")
