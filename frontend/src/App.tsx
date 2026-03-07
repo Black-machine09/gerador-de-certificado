@@ -12,6 +12,8 @@ export function App() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [certificateId, setCertificateId] = useState<string | null>(null);
+  const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
+  const [emailSent, setEmailSent] = useState<boolean | null>(null);
 
   const stepLabel = useMemo(() => {
     if (step === "gate") return "Início";
@@ -53,6 +55,8 @@ export function App() {
     try {
       const result = await issueCertificate({ fullName, email, answers });
       setCertificateId(result.certificateId);
+      setDownloadUrl(result.downloadUrl ? `${import.meta.env.VITE_API_URL || "https://gerador-de-certificado-3jia.onrender.com"}${result.downloadUrl}` : null);
+      setEmailSent(typeof result.emailSent === "boolean" ? result.emailSent : null);
       setStep("done");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erro inesperado.");
@@ -69,6 +73,8 @@ export function App() {
     setError(null);
     setBusy(false);
     setCertificateId(null);
+    setDownloadUrl(null);
+    setEmailSent(null);
   }
 
   return (
@@ -216,8 +222,18 @@ export function App() {
             <div>
               <h2 style={{ margin: 0, fontSize: 18 }}>Certificado enviado</h2>
               <p style={{ margin: "8px 0 0", color: "var(--muted)" }}>
-                Verifique a sua caixa de entrada (e spam). Código: <strong>{certificateId}</strong>
+                {emailSent === false
+                  ? "O envio por email está desativado no servidor. Faça o download abaixo."
+                  : "Verifique a sua caixa de entrada (e spam)."}
+                {" "}Código: <strong>{certificateId}</strong>
               </p>
+              {downloadUrl && (
+                <p style={{ margin: "10px 0 0" }}>
+                  <a className="link" href={downloadUrl} target="_blank" rel="noreferrer">
+                    Baixar certificado (PDF)
+                  </a>
+                </p>
+              )}
             </div>
             <div className="actions">
               <button className="primary" type="button" onClick={reset}>

@@ -33,5 +33,5 @@ export async function issueCertificate(payload: { fullName: string; email: strin
     throw new Error(`${message}${field}`);
   }
 
-  return data as { ok: true; certificateId: string };
+  return data as { ok: true; certificateId: string; emailSent?: boolean; downloadUrl?: string };
 }

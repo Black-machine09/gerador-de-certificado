@@ -6,9 +6,10 @@ from email.message import EmailMessage
 from .settings import Settings
 
 
-def send_certificate_email(*, to: str, full_name: str, pdf_bytes: bytes, certificate_id: str, settings: Settings) -> None:
+def send_certificate_email(*, to: str, full_name: str, pdf_bytes: bytes, certificate_id: str, settings: Settings) -> bool:
     if settings.mail_disable:
-        return
+        print("Email disabled (MAIL_DISABLE=1 or missing Gmail creds). Skipping send.")
+        return False
     if not settings.gmail_user or not settings.gmail_app_password:
         raise RuntimeError("Configure GMAIL_USER e GMAIL_APP_PASSWORD no .env antes de enviar emails.")
 
@@ -26,6 +27,9 @@ def send_certificate_email(*, to: str, full_name: str, pdf_bytes: bytes, certifi
     filename = f"certificado-{certificate_id}.pdf"
     msg.add_attachment(pdf_bytes, maintype="application", subtype="pdf", filename=filename)
 
+    print(f"Sending certificate email to {to} (id={certificate_id})...")
     with smtplib.SMTP_SSL("smtp.gmail.com", 465) as smtp:
         smtp.login(settings.gmail_user, settings.gmail_app_password)
         smtp.send_message(msg)
+    print("Email sent.")
+    return True
