@@ -21,7 +21,7 @@ settings = load_settings()
 app = FastAPI()
 
 frontend_origin_raw = settings.frontend_origin.strip()
-if frontend_origin_raw == "*":
+if not frontend_origin_raw or frontend_origin_raw == "*":
     allowed_origins: list[str] = ["*"]
 else:
     allowed_origins = [o.strip() for o in frontend_origin_raw.split(",") if o.strip()]
@@ -30,8 +30,8 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=allowed_origins,
     allow_credentials=False,
-    allow_methods=["GET", "POST"],
-    allow_headers=["Content-Type"],
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 @app.exception_handler(HTTPException)
