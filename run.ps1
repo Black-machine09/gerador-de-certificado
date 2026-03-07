@@ -62,20 +62,30 @@ function Get-VenvPythonVersion {
   return ($line -replace '^version\s*=\s*', '').Trim()
 }
 
+$venvPy = Join-Path ".venv" "Scripts\\python.exe"
 $venvVer = Get-VenvPythonVersion
-if (!(Test-Path ".venv") -or ($venvVer -and $venvVer.StartsWith("3.14"))) {
+$needsRecreate = $false
+
+if (!(Test-Path ".venv")) { $needsRecreate = $true }
+if (!(Test-Path ".venv\\pyvenv.cfg")) { $needsRecreate = $true }
+if ($venvVer -and $venvVer.StartsWith("3.14")) { $needsRecreate = $true }
+if (!(Test-Path $venvPy)) { $needsRecreate = $true }
+
+if ($needsRecreate) {
   if (Test-Path ".venv") { Remove-Item -Recurse -Force ".venv" }
-  # Criar venv sem pip e instalar pip num passo separado.
-  # (Workaround para erros de ensurepip em alguns ambientes Windows.)
   & $py -m venv ".venv" --without-pip
-  & .\.venv\Scripts\python.exe -m ensurepip --upgrade --default-pip
 }
 
-& .\.venv\Scripts\Activate.ps1
+# Garantir pip dentro da venv (sem depender de Activate.ps1)
+& $venvPy -m pip --version 2>$null | Out-Null
+if ($LASTEXITCODE -ne 0) {
+  & $venvPy -m ensurepip --upgrade --default-pip
+}
+
 if (Test-Path "wheels") {
-  python -m pip install --no-index --find-links "wheels" -r requirements.txt
+  & $venvPy -m pip install --no-index --find-links "wheels" -r requirements.txt
 } else {
-  python -m pip install -r requirements.txt
+  & $venvPy -m pip install -r requirements.txt
 }
 
 $port = $env:PORT
@@ -83,7 +93,7 @@ if ([string]::IsNullOrWhiteSpace($port)) { $port = "3001" }
 
 $reload = $env:DEV_RELOAD
 if ($reload -eq "1" -or $reload -eq "true") {
-  python -m uvicorn app.main:app --host 0.0.0.0 --port $port --reload
+  & $venvPy -m uvicorn app.main:app --host 0.0.0.0 --port $port --reload
 } else {
-  python -m uvicorn app.main:app --host 0.0.0.0 --port $port
+  & $venvPy -m uvicorn app.main:app --host 0.0.0.0 --port $port
 }
