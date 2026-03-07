@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import base64
 import os
 from pathlib import Path
 
@@ -92,9 +93,14 @@ def issue_certificate(payload: IssueCertificateRequest):
     except Exception as exc:
         raise exc
 
+    pdf_b64 = base64.b64encode(pdf_bytes).decode("ascii")
+    filename = f"certificado-{certificate_id}.pdf"
+
     return {
         "ok": True,
         "certificateId": certificate_id,
         "whatsappSent": bool(whatsapp_sent),
         "downloadUrl": f"/api/certificates/{certificate_id}",
+        "pdfBase64": pdf_b64,
+        "pdfFilename": filename,
     }
