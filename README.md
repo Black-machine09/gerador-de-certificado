@@ -1,19 +1,17 @@
 # Gerador de Certificados (Backend)
 
-API em **FastAPI** para validar respostas, gerar o **PDF** do certificado e enviar por **WhatsApp (UltraMsg)**.
+API em **FastAPI** para validar respostas e gerar o **PDF** do certificado para download.
 
 ## Endpoints
 
 - `GET /api/health`
 - `POST /api/certificates/issue`
-- `GET /api/certificates/{certificate_id}` (download do PDF)
 
 ## Configuração
 
 Copie `./.env.example` para `./.env` e preencha:
-
-- `ULTRAMSG_INSTANCE_ID`
-- `ULTRAMSG_TOKEN`
+ 
+Não há integração de envio (WhatsApp/Email) neste backend. O PDF é retornado na resposta da emissão.
 
 ## Rodar local (Windows)
 

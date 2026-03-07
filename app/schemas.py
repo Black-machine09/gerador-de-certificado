@@ -12,5 +12,4 @@ class QuizAnswers(BaseModel):
 
 class IssueCertificateRequest(BaseModel):
     fullName: str = Field(min_length=3, max_length=80)
-    phone: str = Field(min_length=8, max_length=24)
     answers: QuizAnswers
