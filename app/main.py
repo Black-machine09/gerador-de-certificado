@@ -60,6 +60,10 @@ async def unhandled_exception_handler(_request: Request, exc: Exception):
 def health() -> dict:
     return {"ok": True}
 
+@app.get("/")
+def root() -> dict:
+    return {"ok": True, "service": "pade-certificates-api"}
+
 @app.get("/api/certificates/{certificate_id}")
 def download_certificate(certificate_id: str):
     path = Path("storage") / "certificates" / f"certificado-{certificate_id}.pdf"
