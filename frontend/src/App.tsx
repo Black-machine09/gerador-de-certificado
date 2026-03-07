@@ -185,7 +185,12 @@ export function App() {
           <form onSubmit={onIssue} className="row">
             <div>
               <label>Nome completo (como deve aparecer no certificado)</label>
-              <input value={fullName} onChange={(e) => setFullName(e.target.value)} type="text" />
+              <input
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                type="text"
+                placeholder="Mona Lisa"
+              />
             </div>
 
             <div>
