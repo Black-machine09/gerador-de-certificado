@@ -2,11 +2,12 @@ from __future__ import annotations
 
 import base64
 import os
+from pathlib import Path
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import FileResponse, JSONResponse
 
 from .certificate import generate_certificate_pdf
 from .quiz import validate_quiz_answers
@@ -59,6 +60,13 @@ async def unhandled_exception_handler(_request: Request, exc: Exception):
 def health() -> dict:
     return {"ok": True}
 
+@app.get("/api/certificates/{certificate_id}")
+def download_certificate(certificate_id: str):
+    path = Path("storage") / "certificates" / f"certificado-{certificate_id}.pdf"
+    if not path.exists():
+        raise HTTPException(status_code=404, detail="Certificado não encontrado.")
+    return FileResponse(path, media_type="application/pdf", filename=path.name)
+
 @app.post("/api/certificates/issue")
 def issue_certificate(payload: IssueCertificateRequest):
     answers_dict = payload.answers.model_dump()
@@ -80,12 +88,17 @@ def issue_certificate(payload: IssueCertificateRequest):
     except Exception as exc:
         raise exc
 
+    out_dir = Path("storage") / "certificates"
+    out_dir.mkdir(parents=True, exist_ok=True)
+    (out_dir / f"certificado-{certificate_id}.pdf").write_bytes(pdf_bytes)
+
     pdf_b64 = base64.b64encode(pdf_bytes).decode("ascii")
     filename = f"certificado-{certificate_id}.pdf"
 
     return {
         "ok": True,
         "certificateId": certificate_id,
+        "downloadUrl": f"/api/certificates/{certificate_id}",
         "pdfBase64": pdf_b64,
         "pdfFilename": filename,
     }
