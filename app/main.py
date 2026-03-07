@@ -24,6 +24,16 @@ if not frontend_origin_raw or frontend_origin_raw == "*":
     allowed_origins: list[str] = ["*"]
 else:
     allowed_origins = [o.strip() for o in frontend_origin_raw.split(",") if o.strip()]
+    # Always allow local dev.
+    allowed_origins.extend(
+        [
+            "http://localhost:5173",
+            "http://127.0.0.1:5173",
+        ]
+    )
+    # de-duplicate while keeping order
+    seen: set[str] = set()
+    allowed_origins = [o for o in allowed_origins if not (o in seen or seen.add(o))]
 
 app.add_middleware(
     CORSMiddleware,
